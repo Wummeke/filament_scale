@@ -5,20 +5,15 @@ $(function() {
 		self.settingsViewModel = parameters[1];
 		self.last_raw_weight = 0
 		self.calibrate_known_weight = 0
-		// assign the injected parameters, e.g.:
-        // self.loginStateViewModel = parameters[0];
-        // self.settingsViewModel = parameters[1];
 
         // TODO: Implement your plugin's view model here.
 		self.printerState.filamentRemainingString = ko.observable("Loading...")
 
 		self.onBeforeBinding = function() {
             self.filscalesettings = self.settingsViewModel.settings;
-			// self.mqtt_enabled = self.filscalesettings.plugins.filamentscale.mqtt_enabled();
 		};
 				
 		self.onDataUpdaterPluginMessage = function(plugin, message){
-			// console.log(plugin)
 			if (plugin != "filamentscale") {
                 return;
             }
@@ -49,16 +44,16 @@ $(function() {
 					self.printerState.filamentRemainingString(self.getOutputWeight(weight))
 					
 					// if (self.mqtt_enabled){
-						$.ajax({
-							url: API_BASEURL + "plugin/filamentscale",
-							type: "POST",
-							dataType: "json",
-							data: JSON.stringify({
-								command: "publish",
-								measuredweight: (self.getOutputWeightToPublish(weight))
-							}),
-							contentType: "application/json; charset=UTF-8"
-						})
+						// $.ajax({
+						// 	url: API_BASEURL + "plugin/filamentscale",
+						// 	type: "POST",
+						// 	dataType: "json",
+						// 	data: JSON.stringify({
+						// 		command: "publish",
+						// 		measuredweight: (self.getOutputWeightToPublish(weight))
+						// 	}),
+						// 	contentType: "application/json; charset=UTF-8"
+						// })
 					// }
 				}
 			}
