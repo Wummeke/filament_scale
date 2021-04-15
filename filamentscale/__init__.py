@@ -125,6 +125,7 @@ class filamentscalePlugin(octoprint.plugin.StartupPlugin,
 		self._logger.debug("Measured value: %s" % v)
 		self._plugin_manager.send_plugin_message(self._identifier, v)
 		self.getOutputweight(v)
+
 		self._logger.debug("Value sent to frontend")
 		self.hx.power_down()
 		self._logger.debug("Weighting ended.")
@@ -135,10 +136,16 @@ class filamentscalePlugin(octoprint.plugin.StartupPlugin,
 		spool_weight = self._settings.get_int(["spool_weight"])
 		brutoweight = round((raw_weight - tare) / ref_unit)
 		outputweight = max(brutoweight - spool_weight, 0)
-		try:
-			self.mqtt_publish_with_timestamp(self.mqtttopic+self.mqtt_weightsubtopic, outputweight)
-		except:
-			self._logger.debug("MQTT publishing failed")
+		self._logger.debug("Calculated outputweight: "+str(outputweight)+ " grams.")
+		if self.mqtt_enable:
+			mqttpayload = dict(value=outputweight)
+			try:
+				self.mqtt_publish_with_timestamp(self.mqtttopic+self.mqtt_weightsubtopic, mqttpayload)
+			except:
+				self._logger.debug("MQTT publishing failed")
+		else:
+			self._logger.info("MQTT publishing not enabled")
+
 
 	def link_mqtt(self):
 		self.mqtttopic = self.mqtt_basetopic+self.mqtt_plugintopic
@@ -163,7 +170,7 @@ class filamentscalePlugin(octoprint.plugin.StartupPlugin,
 		if not user_permission.can():
 			from flask import make_response
 			return make_response("Insufficient rights", 403)
-        
+
 		if self.mqtt_enable:
 			if command == "publish":
 				mqttpayload = dict(value=data["measuredweight"])
